@@ -41,6 +41,7 @@ export function getBuildingParams(
     building_properties: BuildingProperties
 ): {
     label: string;
+    "ID-RNB": string;
     buildingLevels: number;
     buildingHeight: number;
     buildingMinHeight: number;
@@ -106,6 +107,7 @@ export function getBuildingParams(
 
     const facadeParams = getFacadeParamsFromTags(building_properties);
     const label = <string>building_properties.name ?? null;
+    const rnb = <string>building_properties.RNB ?? null;
 
     let windows = isBuildingHasWindows(building_properties);
     if (height - minHeight - roofHeight < 2) {
@@ -114,6 +116,7 @@ export function getBuildingParams(
 
     return {
         label: label,
+        "ID-RNB": rnb,
         buildingLevels: levels - minLevel,
         buildingHeight: height,
         buildingMinHeight: isRoof ? (height - roofHeight) : minHeight,

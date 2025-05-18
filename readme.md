@@ -1,5 +1,6 @@
 ## Build the tileset.json
 ```sh
+mkdir -p exported/subtiles
 npm run start generate-tileset
 ```
 
@@ -10,5 +11,6 @@ npm run start  serve --port 3300 --host 192.168.1.188 --tile_url http://localhos
 
 ## To seed all b3dm files of a tile
 ```sh
+mkdir -p exported/b3dm
 npm run start  seed-b3dm  --tile_json 12_2074_1408.json  --tile_url http://localhost:8082/data/data
 ```

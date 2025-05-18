@@ -50,6 +50,7 @@ export interface BuildingProperties {
     roofHeight: number
     roofLevels: number
     type: string
+    RNB?: string
     windows: boolean
     roofAngle?: number
     roofOrientation?: BuildingRoofOrientation

@@ -405,15 +405,7 @@ export class Builder {
         const facadeMinHeight = this.descriptor.buildingFoundation ? TERRAINMAXHEIGHT : TERRAINMINHEIGHT;
         const foundationHeight = TERRAINMAXHEIGHT - TERRAINMINHEIGHT;
 
-        // if (roofParams.type === RoofType.Skillion) {
-        //     // skillionn 69694031
-        //     // skillionn 70184607
-        //     // skillionn 70187696
-        //     console.log('skillionn', this.feature.osmId);
-        // }
-        if ([RoofType.Round, RoofType.Saltbox].includes(roofParams.type)) {
-            console.log(this.feature.osmId, roofParams.type, "osmid");
-        }
+
         const { skirt, facadeHeightOverride } = builder.addRoof({
             terrainHeight: facadeMinHeight,
             type: roofParams.type,
