@@ -3,6 +3,7 @@ import { calculateNormal } from "./roof/utils.js";
 import Vec2 from "../math/vector2.js";
 import Vec3 from "../math/vector3.js";
 import { getTileUVTransform } from "../textures/building_textures.js";
+import { getImageFrame } from "../textures/helper.js";
 
 const BuildingSmoothNormalsThreshold = 30
 
@@ -71,7 +72,8 @@ export default class WallsBuilder {
             const A = vertices[segIdx];
             const B = this.getNextVertex(segIdx, vertices, isClosed)!;
             const texId = hasWindow ? textureIdWindow : textureIdWall;
-            const textureFrame = global.diffuseMapImages.getImageFrame(texId)
+
+            const textureFrame = getImageFrame(texId)
             const atlasParams = getTileUVTransform(
                 textureFrame.x,
                 textureFrame.y

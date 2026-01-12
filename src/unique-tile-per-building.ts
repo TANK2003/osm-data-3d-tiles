@@ -1,68 +1,68 @@
-import { Level } from 'level';
-import { EntryStream } from "level-read-stream";
+import Database from "better-sqlite3";
+import { TileCoord } from "ol/tilecoord.js";
 
-import { TileCoord } from 'ol/tilecoord.js';
-import { parse } from 'path';
 
-const FLUSH_BATCH_SIZE = 10; // or when 500 entries added
+
 
 export default class UniqueTilePerBuilding {
+    private db: Database.Database;
 
-    private db: Level
+    private stmtInsertOrIgnore: Database.Statement;
+    private stmtSelectTile: Database.Statement;
 
-    private inMemoryMap = new Map();
-    // entry not already store in db
-    private dirtyEntries = new Map();
+    constructor(dbPath = "./building-tile-db/db.sqlite") {
+        this.db = new Database(dbPath);
 
-    private isPendingFlush = false;
 
-    constructor() {
-        this.db = new Level('./building-tile-db');
+        this.db.pragma("journal_mode = WAL");
+        this.db.pragma("synchronous = NORMAL");
+        this.db.pragma("temp_store = MEMORY");
+
+        this.db.exec(`
+      CREATE TABLE IF NOT EXISTS building_tile (
+        osm_id INTEGER PRIMARY KEY,
+        tile_x INTEGER NOT NULL,
+        tile_y INTEGER NOT NULL
+      );
+    `);
+
+        this.stmtInsertOrIgnore = this.db.prepare(`
+      INSERT OR IGNORE INTO building_tile (osm_id, tile_x, tile_y)
+      VALUES (?, ?, ?)
+    `);
+
+        this.stmtSelectTile = this.db.prepare(`
+      SELECT osm_id
+      FROM building_tile
+      WHERE tile_x != ? AND tile_y != ? AND osm_id not in (?)
+      LIMIT 1
+    `);
     }
 
-    async preloadFromLevelDB() {
-        const stream = new EntryStream(this.db);
-        for await (const { key, value } of stream) {
-            const tileXY = (value as string).split('_').map(Number);
-            this.inMemoryMap.set(parseInt(key as string), tileXY);
-        }
+
+
+    /**
+     *  traite une liste d'osmIds pour une tuile donnée.
+     * Retourne ids non "possédés" par cette tuile
+     */
+    async claimBuildingsInTile(osmIds: number[], tileCoord: TileCoord): Promise<number[]> {
+        const tileX = tileCoord[1];
+        const tileY = tileCoord[2];
+
+        const foreign: number[] = [];
+
+        const tx = this.db.transaction((ids: number[]) => {
+            for (const osmId of ids) {
+                this.stmtInsertOrIgnore.run(osmId, tileX, tileY);
+            }
+        });
+
+        tx(osmIds);
+        this.stmtSelectTile.all(tileX, tileY, osmIds.join(',')).forEach((row) => foreign.push(row["osm_id"]));
+        return foreign
     }
 
-    canAddBuildingToTile(osmId: number, tileCoord: TileCoord) {
-        const tileXY = [tileCoord[1], tileCoord[2]];
-        return !this.inMemoryMap.has(osmId) || this.inMemoryMap.get(osmId).join('_') === tileXY.join('_');
-    }
-
-    async registerBuildingsInTile(osmIds: number[], tileCoord: TileCoord) {
-
-        for (const osmId of osmIds.filter(osmId => !this.inMemoryMap.has(osmId))) {
-            this.inMemoryMap.set(osmId, [tileCoord[1], tileCoord[2]]);
-            this.dirtyEntries.set(osmId, [tileCoord[1], tileCoord[2]]);
-        }
-
-        if (this.dirtyEntries.size >= FLUSH_BATCH_SIZE && !this.isPendingFlush) {
-            await this.flushDirtyEntries();
-        }
-    }
-
-    async flushDirtyEntries() {
-        if (this.dirtyEntries.size === 0) return;
-
-        this.isPendingFlush = true;
-
-        const batchOps = [];
-        for (const [osmId, tileXY] of this.dirtyEntries.entries()) {
-
-            batchOps.push({
-                type: 'put',
-                key: osmId.toString(),
-                value: (tileXY as [number, number]).join('_')
-            });
-        }
-
-        await this.db.batch(batchOps);
-
-        this.dirtyEntries.clear();
-        this.isPendingFlush = false;
+    close() {
+        this.db.close();
     }
 }

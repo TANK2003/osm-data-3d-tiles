@@ -5,17 +5,21 @@ import fs from 'fs';
 
 const textures = {
     "roofGeneric1Diffuse": { "url": "assets/textures/buildings/roofs/generic1_diffuse.png", "type": "image" },
-    "roofGeneric1Mask": { "url": "assets/textures/buildings/roofs/generic1_mask.png", "type": "image" },
     "roofGeneric1Normal": { "url": "assets/textures/buildings/roofs/generic1_normal.png", "type": "image" },
     "roofGeneric2Diffuse": { "url": "assets/textures/buildings/roofs/generic2_diffuse.png", "type": "image" },
-
-    "roofGeneric2Mask": { "url": "assets/textures/buildings/roofs/generic2_mask.png", "type": "image" },
     "roofGeneric2Normal": { "url": "assets/textures/buildings/roofs/generic2_normal.png", "type": "image" },
 
-    "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/grey_roof_01_diff_1k.jpg", "type": "image" },
-    "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/grey_roof_01_nor_dx_1k.jpg", "type": "image" },
+    "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_Color.jpg", "type": "image" },
+    "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_NormalGL.png", "type": "image" },
+    "roofGeneric3Mask": { "url": "assets/textures/buildings/roofs/Plastic018A_1K-JPG_Roughness.png", "type": "image" },
+    // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_Color.jpg", "type": "image" },
+    // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_NormalGL.jpg", "type": "image" },
+    // "roofGeneric3Mask": { "url": "assets/textures/buildings/roofs/Plastic001_1K-JPG_Roughness.jpg", "type": "image" },
+    // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/grey_roof_01_diff_1k.jpg", "type": "image" },
+    // "roofGeneric3Diffuse": { "url": "assets/textures/buildings/roofs/generic3_diffuse.png", "type": "image" },
+    // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/grey_roof_01_nor_dx_1k.jpg", "type": "image" },
+    // "roofGeneric3Normal": { "url": "assets/textures/buildings/roofs/generic3_normal.png", "type": "image" },
     "roofGeneric4Diffuse": { "url": "assets/textures/buildings/roofs/generic4_diffuse.png", "type": "image" },
-    "roofGeneric4Mask": { "url": "assets/textures/buildings/roofs/generic4_mask.png", "type": "image" },
     "roofGeneric4Normal": { "url": "assets/textures/buildings/roofs/generic4_normal.png", "type": "image" },
 
     "roofTilesDiffuse": { "url": "assets/textures/buildings/roofs/tiles_diffuse.png", "type": "image" },
@@ -49,6 +53,7 @@ const textures = {
     "roofTarMask": { "url": "assets/textures/buildings/roofs/tar_mask.png", "type": "image" },
 
     "roofCommonMask": { "url": "assets/textures/buildings/roofs/grey_roof_01_arm_1k.jpg", "type": "image" },
+    // "roofCommonMask": { "url": "assets/textures/buildings/roofs/common_mask.png", "type": "image" },
     "facadeGlassDiffuse": { "url": "assets/textures/buildings/facades/glass_diffuse.png", "type": "image" },
     "facadeGlassNormal": { "url": "assets/textures/buildings/facades/glass_normal.png", "type": "image" },
     "facadeGlassMask": { "url": "assets/textures/buildings/facades/glass_mask.png", "type": "image" },
@@ -58,13 +63,18 @@ const textures = {
     "facadeBrickWallMask": { "url": "assets/textures/buildings/facades/brick_wall_mask.png", "type": "image" },
     "facadeBrickWindowDiffuse": { "url": "assets/textures/buildings/facades/brick_window_diffuse.png", "type": "image" },
 
+
+    "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plastered_wall_02_diff_1k.jpg", "type": "image" },
+    "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plastered_wall_02_nor_gl_1k.jpg", "type": "image" },
+    "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plastered_wall_02_arm_1k.png", "type": "image" },
+
     "facadeBrickWindowNormal": { "url": "assets/textures/buildings/facades/brick_window_normal.png", "type": "image" },
     "facadeBrickWindowMask": { "url": "assets/textures/buildings/facades/brick_window_mask.png", "type": "image" },
-    "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plaster_wall_diffuse.png", "type": "image" },
-    "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plaster_wall_normal.png", "type": "image" },
+    // "facadePlasterWallDiffuse": { "url": "assets/textures/buildings/facades/plaster_wall_diffuse.png", "type": "image" },
+    // "facadePlasterWallNormal": { "url": "assets/textures/buildings/facades/plaster_wall_normal.png", "type": "image" },
+    // "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plaster_wall_mask.png", "type": "image" },
 
-    "facadePlasterWallMask": { "url": "assets/textures/buildings/facades/plaster_wall_mask.png", "type": "image" },
-    // "facadePlasterWindowDiffuse": { "url": "assets/textures/buildings/facades/samy_diffuse.png", "type": "image" },
+
     "facadePlasterWindowDiffuse": { "url": "assets/textures/buildings/facades/plaster_window_diffuse.png", "type": "image" },
     "facadePlasterWindowNormal": { "url": "assets/textures/buildings/facades/plaster_window_normal.png", "type": "image" },
     "facadePlasterWindowMask": { "url": "assets/textures/buildings/facades/plaster_window_mask.png", "type": "image" },
@@ -91,25 +101,25 @@ const textures = {
 }
 
 export const buildingTextures = [
-    textures['roofGeneric1Diffuse'],
-    textures['roofGeneric1Normal'],
-    textures['roofGeneric1Mask'],
-    textures['noGlow'],
+    // textures['roofGeneric1Diffuse'],
+    // textures['roofGeneric1Normal'],
+    // textures['roofCommonMask'],
+    // textures['noGlow'],
 
-    textures['roofGeneric2Diffuse'],
-    textures['roofGeneric2Normal'],
-    textures['roofGeneric2Mask'],
-    textures['noGlow'],
+    // textures['roofGeneric2Diffuse'],
+    // textures['roofGeneric2Normal'],
+    // textures['roofCommonMask'],
+    // textures['noGlow'],
 
     textures['roofGeneric3Diffuse'],
     textures['roofGeneric3Normal'],
-    textures['roofCommonMask'],
+    textures['roofGeneric3Mask'],
     textures['noGlow'],
 
-    textures['roofGeneric4Diffuse'],
-    textures['roofGeneric4Normal'],
-    textures['roofGeneric4Mask'],
-    textures['noGlow'],
+    // textures['roofGeneric4Diffuse'],
+    // textures['roofGeneric4Normal'],
+    // textures['roofCommonMask'],
+    // textures['noGlow'],
 
     textures['roofTilesDiffuse'],
     textures['roofTilesNormal'],
@@ -144,7 +154,7 @@ export const buildingTextures = [
     textures['roofGlassDiffuse'],
     textures['roofGlassNormal'],
     textures['roofGlassMask'],
-    textures['glassGlow'],
+    textures['noGlow'],
 
     textures['roofTarDiffuse'],
     textures['roofTarNormal'],
@@ -161,40 +171,40 @@ export const buildingTextures = [
     textures['facadeBrickWallMask'],
     textures['noGlow'],
 
-    textures['facadeBrickWindowDiffuse'],
-    textures['facadeBrickWindowNormal'],
-    textures['facadeBrickWindowMask'],
-    textures['window0Glow'],
+    // textures['facadeBrickWindowDiffuse'],
+    // textures['facadeBrickWindowNormal'],
+    // textures['facadeBrickWindowMask'],
+    // textures['window0Glow'],
     // 15
     textures['facadePlasterWallDiffuse'],
     textures['facadePlasterWallNormal'],
     textures['facadePlasterWallMask'],
     textures['noGlow'],
 
-    textures['facadePlasterWindowDiffuse'],
-    textures['facadePlasterWindowNormal'],
-    textures['facadePlasterWindowMask'],
-    textures['window1Glow'],
+    // textures['facadePlasterWindowDiffuse'],
+    // textures['facadePlasterWindowNormal'],
+    // textures['facadePlasterWindowMask'],
+    // textures['window1Glow'],
 
     textures['facadeWoodWallDiffuse'],
     textures['facadeWoodWallNormal'],
     textures['facadeWoodWallMask'],
     textures['noGlow'],
 
-    textures['facadeWoodWindowDiffuse'],
-    textures['facadeWoodWindowNormal'],
-    textures['facadeWoodWindowMask'],
-    textures['window0Glow'],
+    // textures['facadeWoodWindowDiffuse'],
+    // textures['facadeWoodWindowNormal'],
+    // textures['facadeWoodWindowMask'],
+    // textures['window0Glow'],
 
     textures['facadeBlockWallDiffuse'],
     textures['facadeBlockWallNormal'],
     textures['facadeBlockWallMask'],
-    textures['noGlow'],
+    textures['window0Glow'],
 
-    textures['facadeBlockWindowDiffuse'],
-    textures['facadeBlockWindowNormal'],
-    textures['facadeBlockWindowMask'],
-    textures['window1Glow'],
+    // textures['facadeBlockWindowDiffuse'],
+    // textures['facadeBlockWindowNormal'],
+    // textures['facadeBlockWindowMask'],
+    // textures['window1Glow'],
 
 ]
 const noiseTextureUrl = "assets/textures/noise/noise.png"

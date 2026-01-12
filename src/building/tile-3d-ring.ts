@@ -2,10 +2,12 @@ import { Box3, Vector3 } from "three";
 import { MathUtils } from "three/src/math/MathUtils.js";
 // import { Extent } from "../../giro-3d-module";
 import { getPolygonAreaSigned } from "./roof/utils.js";
-import { VectorNode } from "./type.js";
-import { VectorAreaRingType } from "./builder.js";
+
+
 import Vec2 from "../math/vector2.js";
 import { isPointInsidePolygon } from "../math/utils.js";
+import { Extent } from "ol/extent.js";
+import { boxToExtent } from "./helper.js";
 
 
 const temp_box = new Box3()
@@ -15,19 +17,16 @@ export enum Tile3DRingType {
     Inner
 }
 
-export interface VectorAreaRing {
-    nodes: VectorNode[];
-    type: VectorAreaRingType;
-}
+
 
 export default class Tile3DRing {
     public readonly type: Tile3DRingType;
     public readonly nodes: Vec2[];
 
-    private cachedFlattenVertices: number[];
-    private cachedGeoJSONVertices: [number, number][];
-    private cachedAABB: Box3;
-    private cachedArea: number;
+    private cachedFlattenVertices: number[] = null;
+    private cachedGeoJSONVertices: [number, number][] = null;
+    private cachedAABB: Extent = null;
+    private cachedArea: number = null;
 
     public constructor(type: Tile3DRingType, nodes: Vec2[]) {
         this.type = type;
@@ -62,7 +61,7 @@ export default class Tile3DRing {
         return this.cachedGeoJSONVertices;
     }
 
-    public getAABB(): Box3 {
+    public getAABB(): Extent {
         if (!this.cachedAABB) {
 
 
@@ -76,7 +75,7 @@ export default class Tile3DRing {
             }
 
 
-            this.cachedAABB = temp_box
+            this.cachedAABB = boxToExtent(temp_box);
         }
 
         return this.cachedAABB;

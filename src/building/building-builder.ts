@@ -99,6 +99,31 @@ export class BuildingBuilder {
     }
 
 
+
+    // public addOutLine(params: {
+    //     terrainHeight: number;
+    //     minHeight: number;
+    //     color: number;
+    //     textureId: number;
+    //     outlineHeight: number
+    // }) {
+    //     const footprint = this.multipolygon.getFootPrintAsOutlineArea({
+    //         min_height: params.minHeight,
+    //         max_height: params.minHeight + params.outlineHeight,
+    //         thickness: 0
+    //     });
+
+    //     this.addAndPaintGeometry({
+    //         position: footprint.positions,
+    //         normal: footprint.normals,
+    //         uv: footprint.uvs,
+    //         color: params.color,
+    //         textureId: params.textureId,
+    //         heightOffset: params.terrainHeight
+    //     });
+
+    // }
+
     public addRoof(params: {
         terrainHeight: number;
         type: RoofType;
@@ -116,33 +141,34 @@ export class BuildingBuilder {
         flip: boolean;
     }): { skirt?: RoofSkirt; facadeHeightOverride?: number } {
         let builder: RoofBuilder;
+
         switch (params.type) {
             case RoofType.Skillion: {
-                builder = new SkillionRoofBuilder();//--
+                builder = new SkillionRoofBuilder();
                 break;
             }
             case RoofType.Pyramidal: {
-                builder = new PyramidalRoofBuilder();//--
+                builder = new PyramidalRoofBuilder();
                 break;
             }
             case RoofType.Onion: {
-                builder = new OnionRoofBuilder();//--
+                builder = new OnionRoofBuilder();
                 break;
             }
             case RoofType.Dome: {
-                builder = new DomeRoofBuilder();//--
+                builder = new DomeRoofBuilder();
                 break;
             }
             case RoofType.Hipped: {
-                builder = new HippedRoofBuilder();//--
+                builder = new HippedRoofBuilder();
                 break;
             }
             case RoofType.Gabled: {
                 if (params.orientation === 'along' || params.orientation === 'across') {
                     // builder = new OrientedGabledRoofBuilder();
-                    builder = new GabledRoofBuilder();//--
+                    builder = new GabledRoofBuilder();
                 } else {
-                    builder = new GabledRoofBuilder();//--
+                    builder = new GabledRoofBuilder();
                 }
                 break;
             }
@@ -150,12 +176,12 @@ export class BuildingBuilder {
                 if (params.orientation === 'along' || params.orientation === 'across') {
                     builder = new OrientedGambrelRoofBuilder();
                 } else {
-                    builder = new GambrelRoofBuilder();//--
+                    builder = new GambrelRoofBuilder();
                 }
                 break;
             }
             case RoofType.Mansard: {
-                builder = new MansardRoofBuilder();//--
+                builder = new MansardRoofBuilder();
                 break;
             }
             case RoofType.Round: {
@@ -168,7 +194,7 @@ export class BuildingBuilder {
                 break;
             }
             case RoofType.QuadrupleSaltbox: {
-                builder = new QuadrupleSaltboxRoofBuilder();//--
+                builder = new QuadrupleSaltboxRoofBuilder();
                 break;
             }
             case RoofType.Saltbox: {
@@ -184,8 +210,6 @@ export class BuildingBuilder {
                 break;
             }
         }
-
-
 
         const roof = this.buildRoofSafe(builder, {
             multipolygon: this.multipolygon,
@@ -203,7 +227,7 @@ export class BuildingBuilder {
         });
 
         return {
-            skirt: roof.addSkirt ? roof.skirt : undefined,
+            skirt: roof.addSkirt ? roof.skirt : null,
             facadeHeightOverride: roof.facadeHeightOverride
         };
     }
@@ -219,7 +243,8 @@ export class BuildingBuilder {
             color,
             textureIdWindow,
             textureIdWall,
-            windowSeed
+            windowSeed,
+            skirtOffset = 0
         }: {
             terrainHeight: number;
             minHeight: number;
@@ -231,6 +256,7 @@ export class BuildingBuilder {
             textureIdWindow: number;
             textureIdWall: number;
             windowSeed: number;
+            skirtOffset?: number
         }
     ): void {
         const noWalls = minHeight >= height;
@@ -259,7 +285,7 @@ export class BuildingBuilder {
 
                 const walls = WallsBuilder.build({
                     vertices,
-                    minHeight: height,
+                    minHeight: height + skirtOffset,
                     height: skirtPartMaxHeight,
                     heightPoints: heights,
                     levels: skirtLevels,
@@ -287,12 +313,10 @@ export class BuildingBuilder {
             const rng = new SeededRandom(windowSeed);
 
             for (const ring of this.multipolygon.rings) {
-                // const uvOffset = new Vec2(
-                //     Math.floor(rng.generate() * 256),
-                //     Math.floor(rng.generate() * 256)
-                // );
-
-                const uvOffset = new Vec2(0, 0)
+                const uvOffset = new Vec2(
+                    Math.floor(rng.generate() * 256),
+                    Math.floor(rng.generate() * 256)
+                );
 
 
                 const walls = WallsBuilder.build({
@@ -327,11 +351,11 @@ export class BuildingBuilder {
                 flip: true,
                 direction: 0,
                 angle: 0,
-                orientation: "along",
+                orientation: null,
                 scaleX: 10,
                 scaleY: 10,
                 isStretched: false,
-                textureId: ExtrudedTextures.RoofConcrete,
+                textureId: null,
             });
 
             this.addAndPaintGeometry({

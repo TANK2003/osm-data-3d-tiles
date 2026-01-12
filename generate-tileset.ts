@@ -1,9 +1,11 @@
 
 import { createXYZ } from "ol/tilegrid.js";
 import fs from 'fs/promises';
-import { getBoundingVolumeRegionFromCenter, createNestedTileSetJson } from "./src/tileset.js";
+
 import { Tile } from "ol";
 import { TileCoord } from "ol/tilecoord.js";
+import { coordinate_units_type } from "./src/type.js";
+import { createBoxNestedTileSetJson, createRegionNestedTileSetJson } from "./src/tileset/tileset.js";
 
 const FranceExtent = [
     -606913.8638049276,
@@ -25,7 +27,7 @@ export async function buildTileSetJson() {
         root: {
             geometricError: 512,
             refine: 'ADD',
-            boundingVolume: getBoundingVolumeRegionFromCenter(Extent, 20),
+            // boundingVolume: getBoundingVolume(Extent, 300),
             children: []
         }
     };
@@ -43,12 +45,12 @@ export async function buildTileSetJson() {
         const y = tileCoord[2]
 
         const nestedTileSetJsonPath = "subtiles/" + z + "_" + x + "_" + y + ".json"
-        await createNestedTileSetJson(tileGrid, tileExtent, "exported/" + nestedTileSetJsonPath)
+        // await createNestedTileSetJson(tileGrid, tileExtent, "exported/" + nestedTileSetJsonPath)
 
         tileSetJson.root.children.push({
             geometricError: 512,
             refine: 'ADD',
-            boundingVolume: getBoundingVolumeRegionFromCenter(tileExtent, 20),
+            // boundingVolume: getBoundingVolume(tileExtent, 300),
             content: {
                 uri: nestedTileSetJsonPath
             }
@@ -65,3 +67,19 @@ export async function buildTileSetJson() {
 }
 
 
+export async function buildTileSetJsonForTileCoord(tileCoordPath: string) {
+    const tileCoord = tileCoordPath.split("_").map((t) => Number(t))
+    const tileExtent = tileGrid.getTileCoordExtent(tileCoord)
+    const z = tileCoord[0]
+    const x = tileCoord[1]
+    const y = tileCoord[2]
+
+    const nestedTileSetJsonPath = z + "_" + x + "_" + y + ".json"
+    if ((global.COORDINATE_UNITS as coordinate_units_type) == "ecef") {
+        await createRegionNestedTileSetJson(tileGrid, tileExtent, "exported/" + nestedTileSetJsonPath)
+    } else if ((global.COORDINATE_UNITS as coordinate_units_type) == "mercator") {
+        await createBoxNestedTileSetJson(tileGrid, tileExtent, "exported/" + nestedTileSetJsonPath)
+    }
+
+
+}

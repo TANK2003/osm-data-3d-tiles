@@ -9,6 +9,7 @@ import polylabel from "polylabel";
 import { CalcConvexHull, ComputeOMBB, Vector } from "../math/OMBB.js";
 import Vec2 from "../math/vector2.js";
 import Vec3 from '../math/vector3.js';
+import { extend, Extent } from 'ol/extent.js';
 
 interface EarcutInput {
     vertices: number[];
@@ -66,19 +67,21 @@ export default class Tile3DMultipolygon {
     private cachedStraightSkeleton: StraightSkeletonResult = null;
     private cachedOMBB: OMBBResult;
     private cachedPoleOfInaccessibility: Vec3 = null;
-
-    public constructor() {
+    private skeleton: Skeleton
+    private osmId: number
+    public constructor(osmId: number) {
+        this.osmId = osmId
     }
 
     public addRing(ring: Tile3DRing): void {
         this.rings.push(ring);
     }
 
-    // public setOMBB(ombb: OMBBResult): void {
+    public setOMBB(ombb: OMBBResult): void {
 
 
-    //     this.cachedOMBB = ombb;
-    // }
+        this.cachedOMBB = ombb;
+    }
 
     public setPoleOfInaccessibility(poi: Vec3): void {
         this.cachedPoleOfInaccessibility = poi;
@@ -237,8 +240,13 @@ export default class Tile3DMultipolygon {
         return centralEdge;
     }
 
+    public setStraightSkeleton(skeleton: Skeleton) {
+        this.skeleton = skeleton
+        this.cachedStraightSkeleton = new StraightSkeletonResult(skeleton);
+    }
     public getStraightSkeleton(): StraightSkeletonResult {
         if (!this.cachedStraightSkeleton) {
+            console.log("Skeleton non généré en back", this.osmId)
             const inputRings = this.getStraightSkeletonInput();
 
             if (inputRings.length === 0) {
@@ -249,6 +257,7 @@ export default class Tile3DMultipolygon {
 
             try {
                 skeleton = SkeletonBuilder.buildFromPolygon(inputRings);
+
             } catch (e) {
                 console.error('Failed to build straight skeleton\n', e);
             }
@@ -284,7 +293,7 @@ export default class Tile3DMultipolygon {
         const aabb = this.rings[0].getAABB();
 
         for (const ring of this.rings) {
-            aabb.union(ring.getAABB());
+            extend(aabb, ring.getAABB());
         }
 
         return aabb;

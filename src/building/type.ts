@@ -1,18 +1,20 @@
 import { OMBBResult } from "./ombb-params.js";
 import { Coordinate } from "ol/coordinate.js";
-import { VectorAreaRing } from "./tile-3d-ring.js";
 
 import Vec3 from "../math/vector3.js";
+import { Skeleton } from "straight-skeleton";
+import { Extent } from "ol/extent.js";
+import { int } from "three/tsl";
 
 export type BaseOptions = {
     /**
      * The point of origin for relative coordinates.
      */
-    origin: Vec3;
+    origin?: Vec3;
     /**
      * Ignores the Z component of coordinates.
      */
-    ignoreZ: boolean;
+    ignoreZ?: boolean;
 };
 
 
@@ -25,41 +27,55 @@ export type BuildingRoofOrientation = 'along' | 'across';
 export type BuildingFacadeMaterial = 'plaster' | 'brick' | 'wood' | 'glass' | 'cementBlock';
 
 export interface BuildingProperties {
-    "@ombb00": number
-    "@ombb01": number
-    "@ombb10": number
-    "@ombb11": number
-    "@ombb20": number
-    "@ombb21": number
-    "@ombb30": number
-    "@ombb31": number
-    buildingType: string
+    "ombb00": number
+    "ombb01": number
+    "ombb10": number
+    "ombb11": number
+    "ombb20": number
+    "ombb21": number
+    "ombb30": number
+    "ombb31": number
+    building_type: string
     color: number
-    defaultRoof: boolean
+    default_roof: boolean
     height: number
-    isPart: boolean
+    is_part: boolean
     levels: number
     material: string
-    minHeight: number
-    minLevel: number
+    min_height: number
+    min_level: number
     name: string
-    osmId: number
-    osmType: number
-    roofColor: number
-    roofDirection: number
-    roofHeight: number
-    roofLevels: number
+    osm_id: number
+    osm_type: "way" | "relation"
+    roof_color: string
+    roof_direction: number
+    roof_height: number
+    roof_levels: number
     type: string
-    RNB?: string
     windows: boolean
-    roofAngle?: number
-    roofOrientation?: BuildingRoofOrientation
-    roofMaterial?: BuildingRoofMaterial
-    roofType?: BuildingRoofType
+    // roo_angle?: number
+    roof_orientation?: BuildingRoofOrientation
+    roof_material?: BuildingRoofMaterial
+    roof_type?: BuildingRoofType,
+    rnb: string,
+    diff_rnb: string,
+    match_rnb_ids: string,
+    match_rnb_score: number,
+    match_rnb_diff: string
+    parent_and_children?: string
+    building: string
+    elevation?: number;
+    skeleton?: string
+    lcz_outline_id?: number
+    station_id?: number
 }
 
-export interface VectorAreaDescriptor {
+export interface BaseDescriptor {
     label?: string;
+    type: string
+}
+export interface BuildingDescriptor extends BaseDescriptor {
+
     type: 'building' | 'buildingPart' | 'asphalt' | 'roadwayIntersection' | 'pavement' | 'water' | 'farmland' |
     'grass' | 'sand' | 'rock' | 'pitch' | 'manicuredGrass' | 'helipad' | 'forest' | 'garden' | 'construction' |
     'buildingConstruction' | 'shrubbery' | 'roadwayArea';
@@ -82,6 +98,13 @@ export interface VectorAreaDescriptor {
     buildingFoundation?: boolean;
     ombb?: OMBBResult;
     poi?: Vec3;
+    rnb: string
+    match_rnb_ids: string;
+    building: string
+    is_part: boolean
+    skeleton?: Skeleton
+    lcz_outline_id?: number
+    station_id?: number
 }
 
 export enum RoofType {
@@ -100,14 +123,7 @@ export enum RoofType {
 }
 
 
-export interface VectorNode {
-    type: 'node';
-    osmReference: null;
-    descriptor: VectorAreaDescriptor | null;
-    x: number;
-    y: number;
-    rotation: number;
-}
+
 
 export enum OSMReferenceType {
     Node,
@@ -115,11 +131,13 @@ export enum OSMReferenceType {
     Relation
 }
 
-export interface VectorArea {
-    type: 'area';
-    osmId: number;
-    osmType: OSMReferenceType;
-    descriptor: VectorAreaDescriptor;
-    rings: VectorAreaRing[];
-    isBuildingPartInRelation?: boolean;
+
+
+export interface SourceProperties extends BuildingProperties {
+    extent: Extent
+    buildingHeight: number
+    center: Coordinate
+    tileKey: string //x + "_" + y
+    // only polygon for known
+    coordinates: Coordinate[][]
 }

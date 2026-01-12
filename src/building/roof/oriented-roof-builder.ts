@@ -6,6 +6,7 @@ import { splitPolygon, calculateRoofNormals, getIntersectionLineLine, getPointPr
 import Tile3DMultipolygon from "../tile3d-multipolygon.js";
 import earcut from 'earcut';
 import { getTileUVTransform } from "../../textures/building_textures.js";
+import { getImageFrame } from "../../textures/helper.js";
 interface RoofSlice {
     vertices: [number, number][];
     heightFrom: number;
@@ -228,7 +229,7 @@ export default abstract class OrientedRoofBuilder implements RoofBuilder {
         if (!ring.length) {
             return;
         }
-        const textureFrame = global.diffuseMapImages.getImageFrame(this.params.textureId)
+        const textureFrame = getImageFrame(this.params.textureId)
         const atlasParams = getTileUVTransform(
             textureFrame.x,
             textureFrame.y,

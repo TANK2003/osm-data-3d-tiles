@@ -8,6 +8,7 @@ import { clipRange, RoofBuilder, RoofGeometry, RoofParams, Vert } from "./type.j
 import { calculateSplitsNormals, signedDstToLine } from "./utils.js";
 import { getPolygonCentroid, isPointInsidePolygon } from "../../math/utils.js";
 import { getTileUVTransform } from "../../textures/building_textures.js";
+import { getImageFrame } from "../../textures/helper.js";
 
 
 
@@ -124,7 +125,7 @@ export default abstract class CurvedRoofBuilder implements RoofBuilder {
         textureId: number
     ): void {
 
-        const textureFrame = global.diffuseMapImages.getImageFrame(textureId)
+        const textureFrame = getImageFrame(textureId)
         const atlasParams = getTileUVTransform(
             textureFrame.x,
             textureFrame.y,

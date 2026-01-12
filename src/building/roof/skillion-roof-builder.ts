@@ -6,6 +6,7 @@ import Tile3DMultipolygon from "../tile3d-multipolygon.js";
 import Vec3 from "../../math/vector3.js";
 import earcut from 'earcut';
 import { getTileUVTransform } from "../../textures/building_textures.js";
+import { getImageFrame } from "../../textures/helper.js";
 
 
 
@@ -110,7 +111,7 @@ export default class SkillionRoofBuilder implements RoofBuilder {
 
 
 
-        const textureFrame = global.diffuseMapImages.getImageFrame(params.textureId)
+        const textureFrame = getImageFrame(params.textureId)
         const atlasParams = getTileUVTransform(
             textureFrame.x,
             textureFrame.y,

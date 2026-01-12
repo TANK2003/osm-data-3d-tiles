@@ -44,7 +44,7 @@ export function isPointInsidePolygon(point: Vec2, vs: Vec2[]): boolean {
     return inside;
 }
 
-export function lonLatToECEF(lon, lat, height = 0) {
+export function lonLatToECEF(lon, lat, height = 0): [number, number, number] {
     const a = 6378137; // WGS84 semi-major axis
     const e2 = 0.00669437999014; // eccentricity squared
 

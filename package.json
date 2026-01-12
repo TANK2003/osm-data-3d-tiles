@@ -5,9 +5,11 @@
   "description": "3D tiles of buildings use in OSM DATA",
   "main": "app.ts",
   "scripts": {
-    "start": "node --loader ts-node/esm main.js ",
-    "generate-tileset": "node --max-old-space-size=4096 --loader ts-node/esm generate-tileset.js",
-    "seed-b3dm": "node --max-old-space-size=4096 --loader ts-node/esm seed-b3dm.js"
+    "help": "npx tsx main.ts --help",
+    "dev": "npx tsx watch main.ts serve",
+    "generate-tileset": "npx tsx main.ts generate-tileset",
+    "seed-b3dm": "npx tsx main.ts seed-b3dm",
+    "pack-textures": "npx tsx main.ts pack-textures"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +19,9 @@
   "dependencies": {
     "@gltf-transform/core": "^4.1.3",
     "@gltf-transform/extensions": "^4.1.3",
+    "@types/better-sqlite3": "^7.6.13",
     "3d-tiles-tools": "^0.5.0",
+    "better-sqlite3": "^12.5.0",
     "cors": "^2.8.5",
     "draco3dgltf": "^1.5.7",
     "earcut": "^3.0.1",
@@ -26,11 +30,10 @@
     "fs-extra": "^11.3.0",
     "gl-matrix": "^3.4.3",
     "gltf-pipeline": "^4.1.0",
-    "level": "^9.0.0",
-    "level-read-stream": "^2.0.0",
     "node-three-gltf": "^2.0.1",
     "ol": "^9.2.4",
     "polylabel": "^1.1.0",
+    "proj4": "^2.20.2",
     "sharp": "^0.34.0",
     "straight-skeleton": "git+https://github.com/TANK2003/straight-skeleton",
     "three": "^0.175.0",
@@ -42,6 +45,7 @@
     "@types/yargs": "^17.0.33",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.2"
   }
 }

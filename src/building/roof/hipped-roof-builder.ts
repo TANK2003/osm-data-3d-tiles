@@ -6,6 +6,7 @@ import earcut from 'earcut';
 import { calculateNormal, signedDstToLine } from "./utils.js";
 import Vec3 from "../../math/vector3.js";
 import { getTileUVTransform } from "../../textures/building_textures.js";
+import { getImageFrame } from "../../textures/helper.js";
 
 
 export default class HippedRoofBuilder implements RoofBuilder {
@@ -161,7 +162,7 @@ export default class HippedRoofBuilder implements RoofBuilder {
         const position: number[] = [];
         const uvOut: number[] = [];
 
-        const textureFrame = global.diffuseMapImages.getImageFrame(this.params.textureId)
+        const textureFrame = getImageFrame(this.params.textureId)
         const atlasParams = getTileUVTransform(
             textureFrame.x,
             textureFrame.y,

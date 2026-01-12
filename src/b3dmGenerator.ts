@@ -10,16 +10,17 @@ import Polygon from 'ol/geom/Polygon.js';
 import { MVT } from 'ol/format.js';
 import { transform } from 'ol/proj.js';
 import { createXYZ } from "ol/tilegrid.js";
-import { getBottomLeft } from "ol/extent.js";
+import { Extent, getBottomLeft, getCenter, getSize } from "ol/extent.js";
 import { NodeIO } from '@gltf-transform/core';
 
 import { getBuildingParams } from "./building/building-params.js";
-import { OSMReferenceType } from "./building/type.js";
+import { BuildingProperties, OSMReferenceType } from "./building/type.js";
 import UniqueTilePerBuilding from './unique-tile-per-building.js';
 import { lonLatToECEF } from './math/utils.js';
 import { Box3, BufferAttribute, BufferAttributeJSON, BufferGeometry, DoubleSide, Group, MathUtils, Mesh, MeshStandardMaterial, Vector2, Vector3 } from 'three';
 import { build3dBuildings } from './build3dBuilding.js';
-import { createNestedTileSetJson } from './tileset.js';
+import RenderFeature, { toGeometry } from "ol/render/Feature.js";
+import { coordinate_units_type } from './type.js';
 
 async function fetchWithRetry(url, options = {}, retries = 3, delay = 2000) {
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -39,18 +40,10 @@ async function fetchWithRetry(url, options = {}, retries = 3, delay = 2000) {
 const tileGrid = createXYZ({ tileSize: 512 })
 
 
-function buildMeshGroup(building: Mesh, lat: number) {
-    const scale = Math.cos(lat * Math.PI / 180);
-    building.geometry.computeBoundingBox();
-    const geom = building.geometry
-    const box = new Box3().setFromObject(building);
-    let center = new Vector3();
-    box.getCenter(center);
-    geom.center();
-    building.position.copy(center);
-
+function buildMeshGroup(building: Mesh) {
 
     building.geometry.computeBoundingBox();
+
 
     const group = new Group();
     group.add(building);
@@ -69,13 +62,12 @@ function buildMeshGroup(building: Mesh, lat: number) {
     //     console.log(`  Roll    : ${Cesium.Math.toDegrees(hpr.roll).toFixed(1)}°`);
 
     // });
-    const heading = MathUtils.degToRad(92.3);
-    const roll = MathUtils.degToRad(41.1);
-    group.rotation.set(roll, heading, 0, "YXZ")
+
+
     group.rotation.x -= Math.PI / 2
 
-    group.scale.set(scale, scale, scale);
     group.updateMatrixWorld(true);
+
     return group
 }
 
@@ -91,16 +83,16 @@ export class B3dmException extends Error {
 
 
 
-export async function getB3dmFileFromTileCoord(tileCoord) {
+export async function getB3dmFileFromTileCoord(tileCoord: number[]) {
     const uniqueTilePerBuilding = (global.uniqueTilePerBuilding as UniqueTilePerBuilding)
-    tileCoord = tileCoord.map((i) => parseInt(i))
+
     const tileExtent = tileGrid.getTileCoordExtent(tileCoord)
     if (tileExtent.every(Number.isNaN) || tileCoord === undefined) {
-        throw new B3dmException("Incorrect tile coord", 400)
+        throw new B3dmException(`Incorrect tile coord ${tileCoord}`, 400)
     }
 
-    const tileCenter = getBottomLeft(tileExtent)
-    let pbfUrl = `${global.TILE_URL}/16/${tileCoord[1]}/${tileCoord[2]}.pbf`;
+
+    const pbfUrl = `${global.TILE_URL}/16/${tileCoord[1]}/${tileCoord[2]}.pbf`;
 
     return await fetchWithRetry(pbfUrl)
         .catch(error => {
@@ -114,39 +106,38 @@ export async function getB3dmFileFromTileCoord(tileCoord) {
                 featureProjection: 'EPSG:3857'
             });
 
-            const serializableFeatures = features.filter((feature) => feature.getProperties()["layer"] == "buildings" && ["bench", "construction", "streetLamp", "busStop"].indexOf(feature.getProperties()["type"]) == -1)
-                .filter((feature) => uniqueTilePerBuilding.canAddBuildingToTile(feature.getProperties()["osmId"], tileCoord))
-                // .filter((feature) => feature.getProperties()["osmId"] == 69034126)
-                .map((feature) => {
-                    return {
-                        "flatCoordinates": feature.getFlatCoordinates(),
-                        // @ts-expect-error
-                        "ends_": feature.ends_,
-                        "properties": feature.getProperties()
-                    }
-                })
-            if (serializableFeatures.length == 0) {
+            // Exclude features that does not belong to this tile, to avoid duplicate feature in many tiles
+            const buildings = features.filter((feature) => feature.getProperties()["layer"] == "buildings")
+            const tilesForeignOsmIds = await uniqueTilePerBuilding.claimBuildingsInTile(buildings.map((f) => f.getProperties()["osm_id"]), tileCoord)
+
+            const featuresInTile = buildings.filter((feature) => !tilesForeignOsmIds.includes(feature.getProperties()["osm_id"]))
+            // .filter((feature) => feature.getProperties()["osm_id"] == 69034126)
+
+            if (featuresInTile.length == 0) {
                 throw new B3dmException("No buildings in the tile", 404)
             }
 
-            await uniqueTilePerBuilding.registerBuildingsInTile(serializableFeatures.map((feature) => feature.properties["osmId"]), tileCoord)
+            const tileCenter = getCenter(tileExtent)
 
+            // the offset that will be applied to all the features : all features will have coordinates relative to the bottom left of the tile
+            const tilePosition = new Vector2(tileCenter[0], tileCenter[1])
 
-            const [lon, lat] = transform(tileCenter, 'EPSG:3857', 'EPSG:4326');
-            const buildingPositions = lonLatToECEF(lon, lat, 0)
-
-            const worldBuildingPosition = new Vector2(tileCenter[0], tileCenter[1])
-            const data = build3dBuildings(serializableFeatures, worldBuildingPosition, tileCenter.join("_"))
+            const data = build3dBuildings(featuresInTile, tilePosition, tileCenter.join("_"))
 
             const geometry = new BufferGeometry()
             data.geometriesJson.map((geometryJson) => {
-                geometry.setAttribute(geometryJson.key, new BufferAttribute(new Float32Array(geometryJson.data.array), geometryJson.data.itemSize, geometryJson.data.normalized))
-            })
+                if (geometryJson.key == "batchId") {
+                    geometry.setAttribute(geometryJson.key, new BufferAttribute(new Uint16Array(geometryJson.data.array), geometryJson.data.itemSize, geometryJson.data.normalized))
+                } else {
 
+                    geometry.setAttribute(geometryJson.key, new BufferAttribute(new Float32Array(geometryJson.data.array), geometryJson.data.itemSize, geometryJson.data.normalized))
+                }
+            })
             const buildingMaterial = new MeshStandardMaterial({
                 side: DoubleSide,
-                map: global.diffuseTexture,
-                normalMap: global.normalTexture,
+                color: "red"
+                // map: global.diffuseTexture,
+                // normalMap: global.normalTexture,
                 // aoMap: global.maskTexture,
                 // roughnessMap: global.maskTexture,
                 // metalnessMap: global.maskTexture,
@@ -157,8 +148,16 @@ export async function getB3dmFileFromTileCoord(tileCoord) {
                 // metalness: 0.0,
             })
             const building = new Mesh(geometry, buildingMaterial)
-
-            const group = buildMeshGroup(building, lat)
+            // let lon, lat: number
+            // // let buildingPositions: [number, number, number]
+            // if ((global.COORDINATE_UNITS as coordinate_units_type) == "ecef") {
+            //     // [lon, lat] = transform(tileCenter, 'EPSG:3857', 'EPSG:4326');
+            //     // buildingPositions = lonLatToECEF(lon, lat, 0)
+            // } else if ((global.COORDINATE_UNITS as coordinate_units_type) == "mercator") {
+            //     // [lon, lat] = tileCenter
+            //     // buildingPositions = [lon, lat, 0]
+            // }
+            const group = buildMeshGroup(building)
 
             const exporter = new GLTFExporter();
 
@@ -224,13 +223,13 @@ export async function getB3dmFileFromTileCoord(tileCoord) {
             function buildOpenStreetMapUrl(osmId, osmType) {
                 let osm_ref_type = undefined
                 switch (osmType) {
-                    case 0:
+                    case "node":
                         osm_ref_type = OSMReferenceType[OSMReferenceType.Node];
                         break;
-                    case 1:
+                    case "way":
                         osm_ref_type = OSMReferenceType[OSMReferenceType.Way];
                         break;
-                    case 2:
+                    case "relation":
                         osm_ref_type = OSMReferenceType[OSMReferenceType.Relation];
                         break;
                 }
@@ -239,16 +238,16 @@ export async function getB3dmFileFromTileCoord(tileCoord) {
                 }
                 return undefined
             }
-            const featureTableJson = { BATCH_LENGTH: serializableFeatures.length, RTC_CENTER: [buildingPositions[0], buildingPositions[1], buildingPositions[2]] };
-            const batchTableJson = groupByKeys(serializableFeatures.map((feature) => {
-                const polygon = new Polygon(feature.flatCoordinates, 'XY', feature.ends_)
-                const polygonCenter = transform(polygon.getInteriorPoint().getCoordinates(), 'EPSG:3857', 'EPSG:4326')
-                // @ts-expect-error
-                return { ...getBuildingParams(feature.properties), "boxCenter": [polygonCenter[0], polygonCenter[1], 10], "Url OSM": buildOpenStreetMapUrl(feature.properties["osmId"], feature.properties["osmType"]) }
+            // RTC_CENTER: [buildingPositions[0], buildingPositions[1], buildingPositions[2]] 
+            const featureTableJson = { BATCH_LENGTH: featuresInTile.length };
+            const batchTableJson = groupByKeys(featuresInTile.map((feature) => {
+                const polygonCenter = transform(feature.getFlatMidpoint(), 'EPSG:3857', 'EPSG:4326')
+                const properties = feature.getProperties() as BuildingProperties
+                return { ...getBuildingParams(properties), "boxCenter": [polygonCenter[0], polygonCenter[1], 10], "osm_url": buildOpenStreetMapUrl(properties.osm_id, properties.osm_type) }
             }))
 
             const b3dmData = await glbToB3dm(compressedBuffer, featureTableJson, batchTableJson)
-
+            // console.log(buildingPositions, "buildingPositions")
             // let [z, x, y] = tileCoord;
             // fs.writeFileSync('exported/b3dm/' + z + "_" + x + "_" + y + '.b3dm', b3dmData);
             // fs.writeFileSync('exported/uncompressed_' + z + "_" + x + "_" + y + '.glb', glbBuffer);

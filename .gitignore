@@ -3,3 +3,4 @@
 /exported/
 /building-tile-db/
 justfile
+.env

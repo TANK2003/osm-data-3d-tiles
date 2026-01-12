@@ -7,9 +7,9 @@ import { buildingTextures } from './textures/building_textures.js';
 export const texturesLoader = [
     fsPromise.readFile("./assets/textures/packed/diffuse.json", "utf-8").then((data) => {
         global.diffuseMapImages = JSON.parse(data)
-        global.diffuseMapImages.getImageFrame = (textureId) => {
-            return global.diffuseMapImages["frames"][buildingTextures[(4 * textureId)].url]["frame"]
-        }
+        // global.diffuseMapImages.getImageFrame = (textureId) => {
+        //     return global.diffuseMapImages["frames"][buildingTextures[(4 * textureId)].url]["frame"]
+        // }
     }),
     new TextureLoader().loadAsync("./assets/textures/packed/diffuse.png").then((texture) => {
         global.diffuseTexture = texture

@@ -2,6 +2,7 @@ import { RoofBuilder, RoofGeometry, RoofParams } from "./type.js";
 import Vec2 from "../../math/vector2.js";
 import earcut from 'earcut';
 import { getTileUVTransform } from "../../textures/building_textures.js";
+import { getImageFrame } from "../../textures/helper.js";
 
 
 
@@ -60,7 +61,7 @@ export default class FlatRoofBuilder implements RoofBuilder {
         const v0i = Math.floor(vMin), v1i = Math.ceil(vMax);
 
 
-        const textureFrame = global.diffuseMapImages.getImageFrame(params.textureId)
+        const textureFrame = getImageFrame(params.textureId)
         const atlasParams = getTileUVTransform(
             textureFrame.x,
             textureFrame.y,
