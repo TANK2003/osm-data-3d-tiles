@@ -36,6 +36,7 @@ Créez un fichier `.env` à la racine du projet :
 PORT=3300
 HOST=localhost
 TILE_URL=http://serveur-tuile/maps/osm_data
+EXTENT=483846.38180292473,5694711.4384306185,594527.2326621102,5785212.880144494
 ```
 
 ## ⚙️ Configuration
@@ -45,6 +46,7 @@ TILE_URL=http://serveur-tuile/maps/osm_data
 - `PORT` : Port du serveur (défaut: 3300)
 - `HOST` : Adresse IP/hostname du serveur (défaut: localhost)
 - `TILE_URL` : URL de base du serveur de tuiles MVT contenant les données OSM (requis)
+- `EXTENT` : Emprise géographique pour la génération des tuiles au format `minX,minY,maxX,maxY` en coordonnées Mercator (EPSG:3857) (requis). Exemple pour Lyon : `483846.38180292473,5694711.4384306185,594527.2326621102,5785212.880144494`
 
 ### Structure des dossiers
 
@@ -76,20 +78,19 @@ node run pack-textures
 
 Génère le fichier `tileset.json` et les sous-tuiles :
 
-**Pour une tuile spécifique :**
-```bash
-npx tsx main.ts generate-tileset --tileCoord 16_33174_22536
-```
-
 **Pour toutes les tuiles :**
 ```bash
 npm run generate-tileset
 ```
 
+**Pour une tuile spécifique :**
+```bash
+npm run generate-tileset -- --tile_coord 16_33174_22536
+```
 
 **Avec projection spécifique :**
 ```bash
-npx tsx main.ts generate-tileset --tileCoord 16_33174_22536 --projection ecef
+npm run generate-tileset  -- --tile_coord 16_33174_22536 --projection ecef
 # Options de projection : 'mercator' (défaut) ou 'ecef'
 ```
 
@@ -98,7 +99,7 @@ npx tsx main.ts generate-tileset --tileCoord 16_33174_22536 --projection ecef
 Génère tous les fichiers B3DM pour une tuile donnée :
 
 ```bash
-npm run seed-b3dm --tile_json 16_33174_22536.json
+npm run seed-b3dm -- --tile_json 16_33174_22536.json
 ```
 
 
@@ -133,22 +134,34 @@ osm-data-3d-tiles/
 │       ├── buildings/      # Textures des bâtiments
 │       │   ├── facades/   # Textures des façades
 │       │   └── roofs/     # Textures des toits
+│       ├── rails/          # Textures des rails
+│       ├── noise/          # Textures de bruit
 │       └── packed/         # Atlas de textures générés
+├── building-tile-db/       # Base de données SQLite pour déduplication
 ├── src/
 │   ├── building/          # Logique de construction 3D des bâtiments
 │   │   ├── roof/          # Générateurs de toits (gabled, hipped, etc.)
 │   │   └── worker/        # Workers pour traitement parallèle
+│   ├── math/              # Utilitaires mathématiques (OMBB, vecteurs)
+│   ├── ring/               # Gestion des anneaux (rings) géométriques
+│   ├── textures/          # Gestion des textures
+│   ├── tileset/           # Génération des tilesets JSON
+│   ├── utils/             # Utilitaires généraux (géométrie)
 │   ├── b3dmGenerator.ts   # Génération des fichiers B3DM
 │   ├── build3dBuilding.ts # Construction 3D à partir des features OSM
-│   ├── textures/          # Gestion des textures
-│   └── tileset/           # Génération des tilesets JSON
+│   ├── texturesLoader.ts  # Chargeur de textures
+│   ├── type.ts            # Types TypeScript
+│   └── unique-tile-per-building.ts # Déduplication des bâtiments
 ├── exported/              # Fichiers générés
 │   ├── tileset.json       # Tileset principal
 │   ├── subtiles/          # Tilesets des sous-tuiles
-│   └── b3dm/              # Fichiers B3DM pré-générés
+│   ├── b3dm/              # Fichiers B3DM pré-générés
+│   └── analyzed/          # Fichiers d'analyse
+├── config.ts              # Configuration du projet
 ├── main.ts                # Point d'entrée principal
 ├── generate-tileset.ts    # Génération des tilesets
-└── seed-b3dm.ts           # Pré-génération des B3DM
+├── seed-b3dm.ts           # Pré-génération des B3DM
+├── serve.ts               # Serveur Express pour les tuiles
 ```
 
 ### Flux de traitement
