@@ -99,7 +99,7 @@ npm run generate-tileset  -- --tile_coord 16_33174_22536 --projection ecef
 Génère tous les fichiers B3DM pour une tuile donnée :
 
 ```bash
-npm run seed-b3dm -- --tile_json 16_33174_22536.json
+npm run seed-b3dm -- --tile_json tileset.json
 ```
 
 

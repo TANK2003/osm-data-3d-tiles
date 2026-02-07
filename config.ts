@@ -38,6 +38,7 @@ if (minX >= maxX || minY >= maxY) {
 const TILESET_ROOT_PATH = "./exported/"
 const B3DM_ROOT_PATH = "./exported/b3dm/"
 
+const TILESET_SUBTILES_PATH_RELATIVE = "./subtiles/"
 const TILESET_SUBTILES_PATH = TILESET_ROOT_PATH + "subtiles/"
 
-export { port, host, tileUrl, extentArray, TILESET_ROOT_PATH, B3DM_ROOT_PATH, TILESET_SUBTILES_PATH };
+export { port, host, tileUrl, extentArray, TILESET_ROOT_PATH, B3DM_ROOT_PATH, TILESET_SUBTILES_PATH, TILESET_SUBTILES_PATH_RELATIVE };

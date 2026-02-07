@@ -4,3 +4,4 @@
 /building-tile-db/
 justfile
 .env
+*.js

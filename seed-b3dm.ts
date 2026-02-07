@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs, { access, constants } from 'fs/promises';
 import UniqueTilePerBuilding from "./src/unique-tile-per-building.js";
 import { getB3dmFileFromTileCoord, B3dmException } from "./src/b3dmGenerator.js";
 import pkg from 'straight-skeleton';
@@ -44,9 +44,12 @@ const listBd3dmPaths = async (tileJsonPath: string, bd3dm_paths: string[]) => {
         for (let index = 0; index < data.root.children.length; index++) {
             const tile = data.root.children[index]
             if (tile.content.uri.includes(".b3dm")) {
-                bd3dm_paths.push(tile.content.uri)
+                const filePath = B3DM_ROOT_PATH + tile.content.uri
+                if (await fileExists(filePath) == false) {
+                    bd3dm_paths.push(tile.content.uri)
+                }
             } else if (tile.content.uri.includes(".json")) {
-                await listBd3dmPaths(tile.content.uri, bd3dm_paths)
+                await listBd3dmPaths(TILESET_ROOT_PATH + tile.content.uri, bd3dm_paths)
             } else {
                 console.error(`${index + 1}/${data.root.children.length} --- `, "Invalid tile path", tile.content.uri);
             }
@@ -62,4 +65,13 @@ const generateAndStoreBd3dm = async (tileCoord: TileCoord, targetPath: string) =
     const b3dmBuffer = await getB3dmFileFromTileCoord(tileCoord)
 
     return fs.writeFile(targetPath, b3dmBuffer)
+}
+
+async function fileExists(path: string) {
+    try {
+        await access(path, constants.F_OK);
+        return true;
+    } catch {
+        return false;
+    }
 }

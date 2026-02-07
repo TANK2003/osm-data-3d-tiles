@@ -9,7 +9,7 @@ export function createRegionTilesetRoot(extent: Extent) {
     const [minX, minY, maxX, maxY] = transformExtent(extent, 'EPSG:3857', 'EPSG:4326');
     const lonC = (minX + maxX) * 0.5;
     const latC = (minY + maxY) * 0.5;
-    const hC = TILE_HEIGHT / 2;
+    const hC = 0;
 
     const lon = toRad(lonC);
     const lat = toRad(latC);
@@ -33,6 +33,25 @@ export function createRegionTilesetRoot(extent: Extent) {
     }
 }
 
+export function getTranslationMatrixFromMatrixToExtentEcef(extent: Extent, rootMatrix: Matrix4) {
+    const [minX, minY, maxX, maxY] = extent;
+    const x = (minX + maxX) * 0.5;
+    const y = (minY + maxY) * 0.5;
+    const hC = 0;
+
+    const [lonDegC, latDegC] = transform([x, y], "EPSG:3857", "EPSG:4326");
+    const lonC = toRad(lonDegC);
+    const latC = toRad(latDegC);
+
+    const childCenterECEF = lonLatHeightToECEF(lonC, latC, hC);
+
+    const M_root = rootMatrix.clone();
+    const M_child = enuToEcefMatrix4(new Vector3().set(childCenterECEF.x, childCenterECEF.y, childCenterECEF.z), lonC, latC);
+
+    const M_rel = new Matrix4().copy(M_root).invert().multiply(M_child);
+    return M_rel;
+}
+
 export function createRegionTilesetContent(tileCoord: TileCoord, extent: Extent, parentTransformMatrix: Matrix4) {
     const z = tileCoord[0]
     const x = tileCoord[1]
@@ -41,7 +60,7 @@ export function createRegionTilesetContent(tileCoord: TileCoord, extent: Extent,
     const [minX3857, minY3857, maxX3857, maxY3857] = extent;
     const x0 = (minX3857 + maxX3857) * 0.5;
     const y0 = (minY3857 + maxY3857) * 0.5;
-    const h0 = TILE_HEIGHT / 2;
+    const h0 = 0;
 
     const { A, C0: childCenterECEF } = buildA_3857_to_ENU(x0, y0, h0);
 
@@ -139,3 +158,30 @@ function buildA_3857_to_ENU(x0: number, y0: number, h0: number) {
     };
 }
 
+
+function enuAxesInEcef(lon: number, lat: number) {
+    const sinLon = Math.sin(lon), cosLon = Math.cos(lon);
+    const sinLat = Math.sin(lat), cosLat = Math.cos(lat);
+
+    // E, N, U expressed in ECEF
+    const E = new Vector3(-sinLon, cosLon, 0);
+    const N = new Vector3(-sinLat * cosLon, -sinLat * sinLon, cosLat);
+    const U = new Vector3(cosLat * cosLon, cosLat * sinLon, sinLat);
+
+    return { E, N, U };
+}
+
+export function enuToEcefMatrix4(centerEcef: Vector3, lon: number, lat: number) {
+    const { E, N, U } = enuAxesInEcef(lon, lat);
+
+    // Matrix4 is column-major: columns are basis vectors
+    const M = new Matrix4();
+    const te = M.elements;
+
+    te[0] = E.x; te[1] = E.y; te[2] = E.z; te[3] = 0;
+    te[4] = N.x; te[5] = N.y; te[6] = N.z; te[7] = 0;
+    te[8] = U.x; te[9] = U.y; te[10] = U.z; te[11] = 0;
+    te[12] = centerEcef.x; te[13] = centerEcef.y; te[14] = centerEcef.z; te[15] = 1;
+
+    return M;
+}

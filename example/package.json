@@ -1,0 +1,25 @@
+{
+    "name": "osm-data-3d-tiles-example",
+    "private": false,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite --port 8082 --host",
+        "build": "tsc && vite build",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "@types/three": "0.170.0",
+        "typescript": "^5.6.2",
+        "vite": "^7"
+    },
+    "dependencies": {
+        "@giro3d/giro3d": "^1.0.0",
+        "gsap": "^3.14.2",
+        "ol": "^10",
+        "three": "^0.170.0"
+    },
+    "volta": {
+        "node": "20.19.0"
+    }
+}

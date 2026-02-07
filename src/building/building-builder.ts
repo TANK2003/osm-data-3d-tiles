@@ -327,7 +327,7 @@ export class BuildingBuilder {
                     windowWidth,
                     textureIdWall,
                     textureIdWindow,
-                    uvOffset
+                    // uvOffset
                 });
 
 

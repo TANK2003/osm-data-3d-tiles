@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./src/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>OSM DATA 3D Tiles - Globe ECEF (EPSG:4978)</title>
+</head>
+
+<body>
+
+    <div class="card">
+        <h5 class="card-header">Element informations</h5>
+        <div class="card-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th scope="row">Name</th>
+                        <th scope="row">Value</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                    <tr>
+                        <th scope="row" colspan="2">
+                            Click on the scene to inspect object properties
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="view" style="height: 100vh; width: 100vw;"></div>
+    <div id="inspector" style="position: absolute; top: 0; left: 0;"></div>
+    <div id="attributions">
+        <a href="https://github.com/TANK2003/osm-data-3d-tiles" target="_blank">Github repository</a> --
+        <a href="https://giro3d.org" target="_blank">Giro3D framework to visualize geospatial data in the browser</a> --
+        <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors
+    </div>
+    <script type="module" src="./src/main_ecef.ts"></script>
+</body>
+
+</html>

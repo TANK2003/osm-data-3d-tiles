@@ -2,7 +2,7 @@ import { TextureArrayLoader, SingleTextureLoader } from "./textureArrayLoader.js
 import { packAsync } from "free-tex-packer-core"
 import fs from 'fs';
 
-
+const ATLAS_PADDING = 16;
 const textures = {
     "roofGeneric1Diffuse": { "url": "assets/textures/buildings/roofs/generic1_diffuse.png", "type": "image" },
     "roofGeneric1Normal": { "url": "assets/textures/buildings/roofs/generic1_normal.png", "type": "image" },
@@ -258,7 +258,7 @@ export async function packImages() {
     const diffuseFiles = await packAsync(diffusesImages, {
         width: 3048,
         height: 3048,
-        extrude: 2,
+        extrude: ATLAS_PADDING,
         textureName: "diffuse",
         detectIdentical: false
     });
@@ -269,7 +269,7 @@ export async function packImages() {
     const normalFiles = await packAsync(normalImages, {
         width: 3048,
         height: 3048,
-        extrude: 2,
+        extrude: ATLAS_PADDING,
         textureName: "normal",
         detectIdentical: false,
     });
@@ -280,7 +280,7 @@ export async function packImages() {
     const maskFiles = await packAsync(maskImages, {
         width: 3048,
         height: 3048,
-        extrude: 2,
+        extrude: ATLAS_PADDING,
         textureName: "mask",
         detectIdentical: false
     });
@@ -291,7 +291,7 @@ export async function packImages() {
     const glowFiles = await packAsync(glowImages, {
         width: 3048,
         height: 3048,
-        extrude: 2,
+        extrude: ATLAS_PADDING,
         textureName: "glow",
         detectIdentical: false,
     });
@@ -305,19 +305,17 @@ export async function packImages() {
 export function getTileUVTransform(
     x: number,
     y: number,
-    atlasSize: number = 2580,
+    atlasSize: number = 2720,// (512+ATLAS_PADDING+ATLAS_PADDING)*5 (col or row)
     tileSize: number = 512,
-    padding: number = 2,
+    padding: number = ATLAS_PADDING,
     cols: number = 5
 ) {
     // 1) taille d’une « cellule » incluant padding
-    const cell = tileSize + padding * 2;    // 512 + 4 = 516
+    const cell = tileSize + padding * 2;
 
-    // 2) calcul de la colonne et de la ligne
+    // 2) calcul de la colonne et de la ligne sur une texture de 512x512
     const col = (Math.floor(x / tileSize));
     const row = (cols - 1) - (Math.floor(y / tileSize));
-    // const row = idx % cols;
-    // const col = Math.floor(idx / cols);
 
     // 3) offset en pixels jusqu’au coin haut-gauche de la tuile
     const px = padding + col * cell;
@@ -330,8 +328,8 @@ export function getTileUVTransform(
     const vScale = tileSize / atlasSize;
 
     // 5) pour éviter le bleeding dû au filtering, on peut « shrinker » un peu :
-    const epsU = 2 / atlasSize;
-    const epsV = 2 / atlasSize;
+    const epsU = (ATLAS_PADDING + 0.5) / atlasSize;
+    const epsV = (ATLAS_PADDING + 0.5) / atlasSize;
 
     return {
         offset: { x: uOffset + epsU, y: vOffset + epsV },

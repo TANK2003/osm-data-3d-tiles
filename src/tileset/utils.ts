@@ -29,7 +29,8 @@ export function enuBasisECEF(lonRad: number, latRad: number) {
 }
 
 export function lonLatHeightToECEF(lonRad: number, latRad: number, h = 0) {
-    const a = 6378137.0;
+    //https://en.wikipedia.org/wiki/Earth-centered,_Earth-fixed_coordinate_system
+    const a = 6378137.0; // semi major axis
     const f = 1 / 298.257223563;
     const e2 = f * (2 - f);
 

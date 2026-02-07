@@ -129,13 +129,12 @@ export async function getB3dmFileFromTileCoord(tileCoord: number[]) {
                 if (geometryJson.key == "batchId") {
                     geometry.setAttribute(geometryJson.key, new BufferAttribute(new Uint16Array(geometryJson.data.array), geometryJson.data.itemSize, geometryJson.data.normalized))
                 } else {
-
                     geometry.setAttribute(geometryJson.key, new BufferAttribute(new Float32Array(geometryJson.data.array), geometryJson.data.itemSize, geometryJson.data.normalized))
                 }
             })
             const buildingMaterial = new MeshStandardMaterial({
                 side: DoubleSide,
-                color: "red"
+                // color: "red",
                 // map: global.diffuseTexture,
                 // normalMap: global.normalTexture,
                 // aoMap: global.maskTexture,

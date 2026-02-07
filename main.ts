@@ -78,7 +78,7 @@ const argv = yargs(hideBin(process.argv))
                 .option('projection', {
                     type: 'string',
                     default: 'mercator',
-                    choices: ['mercator', 'ecef'],
+                    choices: ['mercator', 'ecef', 'custom'],
                     describe: 'Projection of the tile eg: mercator, ecef',
                     demandOption: false
                 })

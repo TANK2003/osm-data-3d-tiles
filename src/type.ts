@@ -1,1 +1,1 @@
-export type coordinate_units_type = "mercator" | "ecef";
+export type coordinate_units_type = "mercator" | "ecef" | "custom";

@@ -67,6 +67,7 @@ export default class WallsBuilder {
         const uvs: number[] = []
         const normals: number[] = []
         const textureIds: number[] = []
+        // console.log(uvOffset)
 
         wallUVSegments.forEach(([segIdx, u0, u1, hasWindow]) => {
             const A = vertices[segIdx];
@@ -78,6 +79,7 @@ export default class WallsBuilder {
                 textureFrame.x,
                 textureFrame.y
             )
+
             const offX = atlasParams.offset.x
             const offY = atlasParams.offset.y
             const scX = atlasParams.scale.x
@@ -153,7 +155,6 @@ export default class WallsBuilder {
                     P0.x, P0.y, y0t,
                     P1.x, P1.y, y1t
                 );
-
                 // UV correspondantes
                 uvs.push(
                     U1, uvV0,

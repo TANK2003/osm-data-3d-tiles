@@ -37,6 +37,17 @@ export function createCustomBoxTilesetRoot(extent) {
     }
 }
 
+export function getTranslationMatrixFromMatrixToExtentCustom(extent: Extent, matrix: Matrix4) {
+    const [minX, minY, maxX, maxY] = transformExtent(extent, "EPSG:3857", targetProjection);
+    const x = (minX + maxX) * 0.5;
+    const y = (minY + maxY) * 0.5;
+
+    const rootCenter = new Vector3().setFromMatrixPosition(matrix);
+    const delta = new Vector3(x - rootCenter.x, y - rootCenter.y, 0 - rootCenter.z);
+    return new Matrix4().makeTranslation(delta.x, delta.y, delta.z);
+
+}
+
 export function createCustomBoxTilesetContent(tileCoord: TileCoord, extent: Extent, parentTransformMatrix: Matrix4) {
     const [minX, minY, maxX, maxY] = extent
 
@@ -84,10 +95,6 @@ function getBoundingVolumeBoxFromExtent(extent: Extent, zMax: number) {
     const w = maxX - minX;
     const h = maxY - minY;
 
-    const cx = w * 0.5;
-    const cy = h * 0.5;
-    const cz = zMax * 0.5;
-
     const hx = w * 0.5;
     const hy = h * 0.5;
     const hz = zMax * 0.5;
@@ -95,7 +102,7 @@ function getBoundingVolumeBoxFromExtent(extent: Extent, zMax: number) {
     return {
         boundingVolume: {
             box: [
-                cx, cy, cz,
+                0, 0, hz,
                 hx, 0, 0,
                 0, hy, 0,
                 0, 0, hz

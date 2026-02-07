@@ -1,3 +1,4 @@
+import { ColorParser } from "./color-parser.js";
 import { BuildingProperties, BuildingRoofMaterial, BuildingRoofOrientation, BuildingRoofType } from "./type.js";
 
 
@@ -40,13 +41,13 @@ const buildingExceptions: string[] = [
 ];
 
 export function isBuildingSupportsDefaultRoof(building_properties: BuildingProperties): boolean {
-    const defaultRoofTag = <boolean>building_properties.defaultRoof;
+    // const defaultRoofTag = <boolean>building_properties.defaultRoof;
 
-    if (defaultRoofTag !== undefined) {
-        return defaultRoofTag;
-    }
+    // if (defaultRoofTag !== undefined) {
+    //     return defaultRoofTag;
+    // }
 
-    return !buildingExceptions.includes(<string>building_properties.buildingType);
+    return !buildingExceptions.includes(<string>building_properties.building_type);
 }
 
 
@@ -83,11 +84,11 @@ export function getRoofParams(building_properties: BuildingProperties): {
     material: BuildingRoofMaterial;
     color: number;
 } {
-    const type = getRoofType(<string>building_properties.roofType, 'flat');
+    const type = getRoofType(<string>building_properties.roof_type, 'flat');
     const noDefault = !isBuildingSupportsDefaultRoof(building_properties) || type !== 'flat';
 
-    const materialTagValue = <string>building_properties.roofMaterial;
-    const colorTagValue = <number>building_properties.roofColor;
+    const materialTagValue = <string>building_properties.roof_material;
+    const colorTagValue = <number>new ColorParser().parseColor(building_properties.roof_color);
 
     let material = getRoofMaterial(materialTagValue, 'default');
     let color = colorTagValue ?? null;
