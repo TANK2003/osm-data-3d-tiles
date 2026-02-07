@@ -45,7 +45,7 @@
                     1
                 ],
                 "content": {
-                    "uri": "../subtiles/2154/12_2102_1460.json"
+                    "uri": "./subtiles/2154/12_2102_1460.json"
                 }
             },
             {
@@ -86,7 +86,7 @@
                     1
                 ],
                 "content": {
-                    "uri": "../subtiles/2154/12_2102_1461.json"
+                    "uri": "./subtiles/2154/12_2102_1461.json"
                 }
             },
             {
@@ -127,7 +127,7 @@
                     1
                 ],
                 "content": {
-                    "uri": "../subtiles/2154/12_2103_1460.json"
+                    "uri": "./subtiles/2154/12_2103_1460.json"
                 }
             },
             {
@@ -168,7 +168,7 @@
                     1
                 ],
                 "content": {
-                    "uri": "../subtiles/2154/12_2103_1461.json"
+                    "uri": "./subtiles/2154/12_2103_1461.json"
                 }
             }
         ],
