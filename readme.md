@@ -2,7 +2,7 @@
 
 Générateur de tuiles 3D (3D Tiles) à partir de données OpenStreetMap (OSM). Ce projet convertit les bâtiments OSM en format B3DM (Batched 3D Model) compatible avec QGIS/CESIUM/Giro3D
 
-# Example (Ville de Lyon)
+# Exemple (Ville de Lyon)
 <img width="1411" height="932" alt="image" src="https://github.com/user-attachments/assets/fd2c0996-e882-4a83-85bc-846c38d60f2f" />
 
 - Tileset en 2154 : https://tank2003.github.io/osm-data-3d-tiles/index_2154.html
